@@ -1,17 +1,535 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="🚀 SOL Radar - Live Tracker">
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 py-3.5 px-1 flex items-center justify-between">
+    <div class="flex items-center space-x-2.5">
+      <div class="relative flex h-3 w-3">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+      </div>
+      <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+        🚀 SOL RADAR <span class="text-xs font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/20 ml-1.5">LIVE</span>
+      </h1>
+    </div>
+    <div class="flex items-center space-x-1.5 text-xs text-slate-400 bg-slate-900 px-2.5 py-1 rounded-full border border-slate-800/80">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="font-mono text-[10px]" id="scan-speed">Scan: 0.4s</span>
+    </div>
+  </header>
+
+  <main class="flex-1 py-4 flex flex-col space-y-4">
+    <!-- Stat Banner -->
+    <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-900/60 border border-slate-800/80 shadow-2xl relative overflow-hidden group">
+      <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent pointer-events-none"></div>
+      <div class="relative z-10 flex justify-between items-center">
+        <div>
+          <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">SOLANA MEMECOIN RADAR</p>
+          <h2 class="text-xl font-extrabold text-white mt-0.5">Top Alpha Tracker</h2>
+          <p class="text-xs text-emerald-400/90 mt-1 font-medium">⚡️ Auto-sniping enabled via Trojan Bot</p>
+        </div>
+        <div class="text-right">
+          <span class="text-3xl">🔥</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Token Cards Grid / Container -->
+    <div class="space-y-4 relative" id="token-list-container">
+      
+      <!-- SKELETON LOADING STATE -->
+      <div id="skeleton-loader" class="space-y-4">
+        {[1, 2, 3, 4, 5].map((index) => (
+          <div class={`p-4 rounded-2xl border border-slate-800 bg-slate-900/40 animate-pulse ${index <= 2 ? 'opacity-30 filter blur-[1px]' : ''}`}>
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-slate-800"></div>
+                <div class="space-y-2">
+                  <div class="h-4 w-20 bg-slate-800 rounded"></div>
+                  <div class="h-3 w-28 bg-slate-800 rounded"></div>
+                </div>
+              </div>
+              <div class="space-y-2 text-right">
+                <div class="h-4 w-16 bg-slate-800 rounded ml-auto"></div>
+                <div class="h-3 w-12 bg-slate-800 rounded ml-auto"></div>
+              </div>
+            </div>
+            <div class="h-10 bg-slate-800 rounded-xl w-full"></div>
+          </div>
+        ))}
+      </div>
+
+      <!-- DYNAMIC TOKEN CARDS CONTAINER -->
+      <div id="token-cards" class="hidden space-y-4">
+        <!-- Rendered dynamically via JS -->
+      </div>
+
+      <!-- VIRAL OVERLAY (LOCKED GEMS) -->
+      <div id="viral-overlay" class="hidden absolute top-0 left-0 right-0 h-[310px] bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent flex flex-col items-center justify-center pb-4 pt-6 px-4 z-30">
+        <div class="text-center space-y-3 max-w-xs mx-auto">
+          <div class="inline-flex p-2.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xl animate-bounce">
+            🔒
+          </div>
+          <div class="space-y-1">
+            <h3 class="text-base font-bold text-white tracking-wide">💎 Top #1 & #2 Alpha Gems Locked!</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Whales are buying these right now. Share with a friend to unlock instantly.</p>
+          </div>
+          <button id="btn-share-unlock" class="w-full py-2.5 px-4 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 active:scale-95 transition duration-200 flex items-center justify-center space-x-2 text-xs uppercase tracking-wider relative overflow-hidden group">
+            <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></span>
+            <span>Share to Unlock 🔓</span>
+          </button>
+        </div>
+    </div>
+  </div>
+
+    <!-- Diagnostics Console -->
+    <div class="mt-6 p-4 rounded-2xl bg-slate-900 border border-slate-800 font-mono text-[10px] text-slate-400 space-y-1.5 shadow-inner relative z-40" id="debug-panel">
+      <div class="text-xs font-bold text-slate-300 border-b border-slate-800 pb-1 mb-1 flex justify-between">
+        <span>⚙️ RADAR DIAGNOSTICS</span>
+        <span class="text-emerald-400">ACTIVE</span>
+      </div>
+      <div id="debug-log-list" class="space-y-1 max-h-[120px] overflow-y-auto">
+        <div>[System] Diagnostics active.</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-6 text-center text-slate-600 text-[10px] font-mono border-t border-slate-900">
+    <p>⚡ SOL Spy © 2026. Trade responsibly.</p>
+    <p class="mt-1 text-emerald-500/40">Powered by DexScreener API</p>
+  </footer>
+
+  <!-- CLIENT-SIDE SCRIPT -->
+  <script>
+    // Constants
+    const REFERRAL_CODE = 'r-mahdi123';
+    const BOT_USERNAME = 'SolSpyBot'; 
+    const SHARE_TEXT = "Bro I just caught a crazy pump with this hidden Solana radar! Check it out 🚀";
+    const SHARE_URL = `https://t.me/share/url?url=https://t.me/${BOT_USERNAME}/app&text=${encodeURIComponent(SHARE_TEXT)}`;
+
+    // DOM Elements
+    const skeletonLoader = document.getElementById('skeleton-loader');
+    const tokenCardsContainer = document.getElementById('token-cards');
+    const viralOverlay = document.getElementById('viral-overlay');
+    const btnShareUnlock = document.getElementById('btn-share-unlock');
+    const scanSpeedLabel = document.getElementById('scan-speed');
+
+    // State Variables
+    let isUnlocked = false;
+    let fetchedTokens = [];
+
+    // Helper: Diagnostic Log
+    function logDebug(msg) {
+      console.log(`[Diagnostic] ${msg}`);
+      const logList = document.getElementById('debug-log-list');
+      if (logList) {
+        const div = document.createElement('div');
+        div.className = 'flex justify-between border-b border-slate-900 pb-0.5';
+        div.innerHTML = `<span>${msg}</span><span class="text-slate-600">${new Date().toLocaleTimeString()}</span>`;
+        logList.appendChild(div);
+        logList.scrollTop = logList.scrollHeight;
+      }
+    }
+
+    // Helper: Initialize Telegram WebApp SDK
+    function initTelegram() {
+      logDebug("Checking Telegram SDK...");
+      if (window.Telegram && window.Telegram.WebApp) {
+        try {
+          const webapp = window.Telegram.WebApp;
+          webapp.ready();
+          webapp.expand();
+          logDebug(`Telegram SDK Ready. Version: ${webapp.version}`);
+          
+          if (webapp.setHeaderColor) {
+            webapp.setHeaderColor('#020617'); // slate-950
+          }
+          if (webapp.setBackgroundColor) {
+            webapp.setBackgroundColor('#020617'); // slate-950
+          }
+        } catch (e) {
+          logDebug(`Telegram SDK Error: ${e.message}`);
+        }
+      } else {
+        logDebug("Telegram SDK not detected (Running in browser mode)");
+      }
+    }
+
+    // Helper: Format Price nicely
+    function formatPrice(priceStr) {
+      const price = parseFloat(priceStr);
+      if (isNaN(price) || price === 0) return '$0.00';
+      if (price >= 1) return `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 3 })}`;
+      
+      const str = price.toFixed(10);
+      const matches = str.match(/\.0+/);
+      if (matches && matches[0].length > 4) {
+        const zeroCount = matches[0].length - 1;
+        const sigDigits = str.slice(zeroCount + 2, zeroCount + 6);
+        return `$0.0{${zeroCount}}${sigDigits}`;
+      }
+      
+      return `$${price.toFixed(6)}`;
+    }
+
+    // Helper: Format Volume
+    function formatVolume(val) {
+      if (!val) return '$0';
+      const num = parseFloat(val);
+      if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+      if (num >= 1000) return `$${(num / 1000).toFixed(0)}K`;
+      return `$${num.toFixed(0)}`;
+    }
+
+    // Helper: Format FDV / Market Cap
+    function formatFDV(val) {
+      if (!val) return '$0';
+      const num = parseFloat(val);
+      if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+      if (num >= 1000) return `$${(num / 1000).toFixed(0)}K`;
+      return `$${num.toFixed(0)}`;
+    }
+
+    // Fetch live trending Solana tokens from DexScreener
+    async function fetchTokens() {
+      const startTime = performance.now();
+      logDebug("Initiating dual-source DexScreener fetch (raydium + jupiter)...");
+      try {
+        const [res1, res2] = await Promise.all([
+          fetch('https://api.dexscreener.com/latest/dex/search?q=raydium'),
+          fetch('https://api.dexscreener.com/latest/dex/search?q=jupiter')
+        ]);
+        
+        logDebug(`Fetch HTTP statuses: Raydium: ${res1.status}, Jupiter: ${res2.status}`);
+        if (!res1.ok || !res2.ok) throw new Error(`Fetch failed (Raydium: ${res1.status}, Jupiter: ${res2.status})`);
+        
+        const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
+        
+        const pairs1 = data1.pairs || [];
+        const pairs2 = data2.pairs || [];
+        const allPairs = [...pairs1, ...pairs2];
+        logDebug(`Total raw pairs received: ${allPairs.length}`);
+        
+        const boringSymbols = ['SOL', 'WSOL', 'USDC', 'USDT', 'USDH', 'POOF'];
+        
+        // Filter pairs on Solana chain with strict criteria
+        let filteredPairs = allPairs.filter(pair => {
+          if (pair.chainId !== 'solana') return false;
+          if (!pair.baseToken || !pair.baseToken.symbol) return false;
+          
+          const symbolUpper = pair.baseToken.symbol.toUpperCase();
+          if (boringSymbols.includes(symbolUpper)) return false;
+          
+          const liquidityUsd = pair.liquidity && pair.liquidity.usd ? parseFloat(pair.liquidity.usd) : 0;
+          if (liquidityUsd < 15000) return false;
+          
+          const volumeH24 = pair.volume && pair.volume.h24 ? parseFloat(pair.volume.h24) : 0;
+          if (volumeH24 < 50000) return false;
+          
+          const m5Change = pair.priceChange && pair.priceChange.m5 ? parseFloat(pair.priceChange.m5) : 0;
+          const h1Change = pair.priceChange && pair.priceChange.h1 ? parseFloat(pair.priceChange.h1) : 0;
+          const h24Change = pair.priceChange && pair.priceChange.h24 ? parseFloat(pair.priceChange.h24) : 0;
+          
+          // Must be positive change in at least one key time window
+          if (m5Change <= 0 && h1Change <= 0 && h24Change <= 0) return false;
+          
+          return true;
+        });
+        logDebug(`Filtered Solana pairs (Strict: >15k Liq, >50k Vol, Green): ${filteredPairs.length}`);
+
+        // Deduplicate by baseToken.symbol (keep highest volume)
+        const symbolMap = new Map();
+        for (const pair of filteredPairs) {
+          const symbolUpper = pair.baseToken.symbol.toUpperCase();
+          const volumeH24 = pair.volume && pair.volume.h24 ? parseFloat(pair.volume.h24) : 0;
+          
+          if (symbolMap.has(symbolUpper)) {
+            const existing = symbolMap.get(symbolUpper);
+            const existingVol = existing.volume && existing.volume.h24 ? parseFloat(existing.volume.h24) : 0;
+            if (volumeH24 > existingVol) {
+              symbolMap.set(symbolUpper, pair);
+            }
+          } else {
+            symbolMap.set(symbolUpper, pair);
+          }
+        }
+        
+        let uniquePairs = Array.from(symbolMap.values());
+        logDebug(`Unique Solana base pairs (Strict): ${uniquePairs.length}`);
+
+        // Fallback Trigger: If fewer than 5 unique pairs, relax criteria
+        if (uniquePairs.length < 5) {
+          logDebug(`⚠️ Only ${uniquePairs.length} strict alpha gems found. Triggering relaxed fallback filters...`);
+          const relaxedPairs = allPairs.filter(pair => {
+            if (pair.chainId !== 'solana') return false;
+            if (!pair.baseToken || !pair.baseToken.symbol) return false;
+            
+            const symbolUpper = pair.baseToken.symbol.toUpperCase();
+            if (boringSymbols.includes(symbolUpper)) return false;
+            
+            const liquidityUsd = pair.liquidity && pair.liquidity.usd ? parseFloat(pair.liquidity.usd) : 0;
+            if (liquidityUsd < 5000) return false;
+            
+            const volumeH24 = pair.volume && pair.volume.h24 ? parseFloat(pair.volume.h24) : 0;
+            if (volumeH24 < 10000) return false;
+            
+            return true;
+          });
+          
+          const relaxedMap = new Map();
+          for (const pair of relaxedPairs) {
+            const symbolUpper = pair.baseToken.symbol.toUpperCase();
+            const volumeH24 = pair.volume && pair.volume.h24 ? parseFloat(pair.volume.h24) : 0;
+            
+            if (relaxedMap.has(symbolUpper)) {
+              const existing = relaxedMap.get(symbolUpper);
+              const existingVol = existing.volume && existing.volume.h24 ? parseFloat(existing.volume.h24) : 0;
+              if (volumeH24 > existingVol) {
+                relaxedMap.set(symbolUpper, pair);
+              }
+            } else {
+              relaxedMap.set(symbolUpper, pair);
+            }
+          }
+          uniquePairs = Array.from(relaxedMap.values());
+          logDebug(`Unique Solana base pairs (Relaxed): ${uniquePairs.length}`);
+        }
+
+        // Sort strictly by maxVelocity descending (index 0 is highest gainer)
+        const getMaxVelocity = (p) => {
+          if (p.priceChange) {
+            const m5 = parseFloat(p.priceChange.m5 || 0);
+            const h1 = parseFloat(p.priceChange.h1 || 0);
+            const h24 = parseFloat(p.priceChange.h24 || 0);
+            return Math.max(m5, h1, h24);
+          }
+          return -999999;
+        };
+
+        uniquePairs.sort((a, b) => getMaxVelocity(b) - getMaxVelocity(a));
+
+        // Get exact top 5
+        fetchedTokens = uniquePairs.slice(0, 5);
+        logDebug(`Top 5 sorted by absolute gain: ${fetchedTokens.map(t => t.baseToken.symbol).join(', ') || 'None'}`);
+        
+        const endTime = performance.now();
+        const fetchDuration = ((endTime - startTime) / 1000).toFixed(2);
+        if (scanSpeedLabel) scanSpeedLabel.innerText = `Scan: ${fetchDuration}s`;
+        
+        renderTokens();
+      } catch (err) {
+        logDebug(`Fetch Error: ${err.message}`);
+        console.error('Error fetching data from DexScreener:', err);
+        renderError();
+      }
+    }
+
+    // Render Cards in DOM
+    function renderTokens() {
+      logDebug(`Rendering UI. Tokens count: ${fetchedTokens.length}, Unlocked: ${isUnlocked}`);
+      if (!tokenCardsContainer) return;
+      tokenCardsContainer.innerHTML = '';
+
+      fetchedTokens.forEach((token, index) => {
+        // Reverse Viral Paywall: Index 0 and 1 are locked. 2, 3, 4 are unlocked.
+        const isLockedCard = (index === 0 || index === 1) && !isUnlocked;
+        
+        const symbol = token.baseToken.symbol || 'UNKNOWN';
+        const name = token.baseToken.name || token.baseToken.symbol || 'Unknown Token';
+        const price = formatPrice(token.priceUsd);
+        const volume24h = formatVolume(token.volume?.h24);
+        
+        // Extract FDV / Market Cap
+        const mcapVal = token.fdv || token.marketCap || 0;
+        const mcapFormatted = formatFDV(mcapVal);
+        
+        // Determine the best price change factor to display and apply "FOMO Velocity Run-Rate" scaling
+        let changeVal = 0;
+        let changeLabel = '24h';
+        
+        if (token.priceChange) {
+          const h24 = parseFloat(token.priceChange.h24 || 0);
+          const h1 = parseFloat(token.priceChange.h1 || 0);
+          const m5 = parseFloat(token.priceChange.m5 || 0);
+          
+          if (m5 > 0.05) {
+            // 5m pump projected linearly to 24h run-rate
+            changeVal = m5 * 144 * 1.5; 
+            changeLabel = 'Velocity (5m Proj)';
+          } else if (h1 > 0.2) {
+            // 1h pump projected to 24h run-rate
+            changeVal = h1 * 24 * 1.2;
+            changeLabel = 'Velocity (1h Proj)';
+          } else {
+            // Fallback to scaled 24h change or random hotness index
+            changeVal = h24 > 0 ? h24 * 2.5 : Math.abs(h24) * 2 + 15.4;
+            changeLabel = '24h Speed';
+          }
+        } else {
+          changeVal = Math.random() * 85 + 45;
+          changeLabel = 'Speed';
+        }
+        
+        const isPositive = true; // Always positive/green to maximize FOMO
+        const formattedChange = `+${changeVal.toFixed(1)}%`;
+        
+        // Bot Snipe Deep Link
+        const baseAddress = token.baseToken.address;
+        const snipeUrl = `https://t.me/solana_trojanbot?start=${REFERRAL_CODE}-${baseAddress}`;
+
+        // Create Card wrapper
+        const card = document.createElement('div');
+        card.id = `token-card-${index}`;
+        card.className = `p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden flex flex-col space-y-3.5 
+          ${isLockedCard 
+            ? 'border-slate-800/40 bg-slate-900/20 opacity-30 select-none pointer-events-none filter blur-[3px]' 
+            : 'border-slate-800/80 bg-slate-900/40 hover:border-emerald-500/30 shadow-lg shadow-black/30 hover:shadow-emerald-500/5'
+          }`;
+
+        // Card HTML
+        card.innerHTML = `
+          <!-- Header info -->
+          <div class="flex justify-between items-start">
+            <div class="flex items-center space-x-3">
+              <!-- Avatar placeholder with gradient -->
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center font-bold text-slate-300 border border-slate-800 relative shadow-inner">
+                ${symbol.slice(0, 2).toUpperCase()}
+                <!-- Glowing indicator for active tokens -->
+                ${!isLockedCard ? '<span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-slate-950 animate-pulse"></span>' : ''}
+              </div>
+              <div>
+                <div class="flex items-center space-x-1.5">
+                  <h4 class="font-extrabold text-white text-base tracking-wide">${symbol}</h4>
+                  <span class="text-[9px] font-mono px-1 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700/60 uppercase">SOL</span>
+                </div>
+                <p class="text-[10px] text-slate-500 truncate max-w-[130px] mt-0.5">${name}</p>
+              </div>
+            </div>
+
+            <!-- Pricing & metrics -->
+            <div class="text-right">
+              <p class="font-mono text-sm font-bold text-white">${price}</p>
+              <div class="flex items-center justify-end space-x-1 mt-0.5">
+                <span class="text-[9px] font-mono text-slate-500 mr-1.5 font-semibold">Vol: ${volume24h} | MCap: ${mcapFormatted}</span>
+                <span class="text-xs font-mono font-extrabold ${isPositive ? 'text-emerald-400' : 'text-rose-500'}">
+                  ${formattedChange} <span class="text-[9px] opacity-75">${changeLabel}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Snipe deep link button -->
+          <div class="relative z-20">
+            <a href="${isLockedCard ? '#' : snipeUrl}" 
+               target="_blank"
+               class="w-full py-2.5 px-4 bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-emerald-400 hover:text-emerald-300 font-bold rounded-xl text-center text-xs flex items-center justify-center space-x-2 transition duration-200 cursor-pointer shadow-sm hover:shadow-emerald-500/10 active:scale-[0.99]"
+            >
+              <span>⚡️ 1-Click Snipe</span>
+            </a>
+          </div>
+
+          <!-- Locked badge overlays if applicable -->
+          ${isLockedCard ? `
+            <div class="absolute inset-0 bg-slate-950/20 pointer-events-none flex items-center justify-center">
+              <span class="bg-slate-950/90 border border-slate-800 text-[10px] font-bold text-slate-400 px-2.5 py-1 rounded-full uppercase tracking-wider shadow-lg flex items-center space-x-1">
+                <span>🔒 Locked</span>
+              </span>
+            </div>
+          ` : ''}
+        `;
+
+        tokenCardsContainer.appendChild(card);
+      });
+
+      // Show container, hide loader
+      skeletonLoader.classList.add('hidden');
+      tokenCardsContainer.classList.remove('hidden');
+
+      // Toggle overlay visibility
+      if (!isUnlocked) {
+        viralOverlay.classList.remove('hidden');
+      } else {
+        viralOverlay.classList.add('hidden');
+      }
+    }
+
+    // Render generic error layout in case API is down
+    function renderError() {
+      if (!tokenCardsContainer) return;
+      skeletonLoader.classList.add('hidden');
+      tokenCardsContainer.classList.remove('hidden');
+      tokenCardsContainer.innerHTML = `
+        <div class="p-6 rounded-2xl border border-rose-500/20 bg-rose-500/5 text-center space-y-3">
+          <p class="text-3xl">⚠️</p>
+          <h4 class="font-bold text-white">Radar Connection Failed</h4>
+          <p class="text-xs text-slate-400">Unable to fetch latest DexScreener trends. Please check your connection and try again.</p>
+          <button onclick="window.location.reload()" class="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 hover:text-white rounded-lg text-xs font-bold font-mono">
+            🔄 Retry Scan
+          </button>
+        </div>
+      `;
+    }
+
+    // Viral Unlock handler
+    function handleUnlock() {
+      // Trigger Telegram Native Share URL in a safe way
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+        window.Telegram.WebApp.openTelegramLink(SHARE_URL);
+      } else {
+        window.open(SHARE_URL, '_blank');
+      }
+
+      // Show UI Feedback on Button
+      if (btnShareUnlock) {
+        btnShareUnlock.disabled = true;
+        btnShareUnlock.innerHTML = `
+          <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-slate-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Unlocking Gems...</span>
+        `;
+        btnShareUnlock.classList.replace('from-emerald-500', 'from-emerald-600');
+      }
+
+      // Simulate Unlock (2 seconds delay)
+      setTimeout(() => {
+        isUnlocked = true;
+        
+        // Animate out the viral overlay
+        if (viralOverlay) {
+          viralOverlay.classList.add('transition-all', 'duration-500', 'opacity-0', 'translate-y-4', 'pointer-events-none');
+          setTimeout(() => viralOverlay.classList.add('hidden'), 500);
+        }
+
+        // Re-render to show unlocked cards with full styling & pointer-events
+        renderTokens();
+
+        // Optional Telegram haptic feedback
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+      }, 2000);
+    }
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      initTelegram();
+      fetchTokens();
+      
+      // Auto-refresh every 30 seconds for live radar updates
+      setInterval(() => {
+        if (!document.hidden) {
+          fetchTokens();
+        }
+      }, 30000);
+
+      // Event Listeners
+      if (btnShareUnlock) {
+        btnShareUnlock.addEventListener('click', handleUnlock);
+      }
+    });
+  </script>
+</Layout>
