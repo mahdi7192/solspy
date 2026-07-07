@@ -311,6 +311,12 @@ import Layout from '../layouts/Layout.astro';
       } catch (err) {
         logDebug(`Fetch Error: ${err.message}`);
         console.error('Error fetching data from DexScreener:', err);
+        if (typeof gtag === 'function') {
+          gtag('event', 'fetch_error', {
+            'event_category': 'system',
+            'event_label': err.message
+          });
+        }
         renderError();
       }
     }
@@ -463,6 +469,14 @@ import Layout from '../layouts/Layout.astro';
 
     // Viral Unlock handler
     function handleUnlock() {
+      // Track share click event in Google Analytics
+      if (typeof gtag === 'function') {
+        gtag('event', 'share_unlock_click', {
+          'event_category': 'engagement',
+          'event_label': 'Telegram WebApp Share Click'
+        });
+      }
+
       // Trigger Telegram Native Share URL in a safe way
       if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
         window.Telegram.WebApp.openTelegramLink(SHARE_URL);
@@ -491,6 +505,14 @@ import Layout from '../layouts/Layout.astro';
         if (viralOverlay) {
           viralOverlay.classList.add('transition-all', 'duration-500', 'opacity-0', 'translate-y-4', 'pointer-events-none');
           setTimeout(() => viralOverlay.classList.add('hidden'), 500);
+        }
+
+        // Track successful unlock in Google Analytics
+        if (typeof gtag === 'function') {
+          gtag('event', 'share_unlock_success', {
+            'event_category': 'engagement',
+            'event_label': 'Telegram WebApp Unlock Success'
+          });
         }
 
         // Re-render to show unlocked cards with full styling & pointer-events
